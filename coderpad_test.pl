@@ -89,6 +89,24 @@ sub coins_solution {
     }
 }
 
+sub dynamic_coins_choose {
+    my ($amount, $coins) = @_;
+    $DB::signal = 1;
+    my @range = (0)x$amount;
+    for my $c (@$coins) {
+        my $ind = -1;
+        while (($ind += $c) < @range) {
+            my $prev_val = $ind == $c-1 ? 0 : $range[$ind - $c];
+            if ($range[$ind] == 0 or $prev_val + 1 < $range[$ind]) {
+                $range[$ind] = $prev_val + 1;
+            }
+        }
+    }
+    log_info("Dynamic version:", \@range);
+    return $range[-1] || -1;
+}
+
+
 ####
 # TEST SECTION
 ####
@@ -96,10 +114,11 @@ if ($0 eq __FILE__) {
     use Test::More;
     ok(1, "Compile test");
 
-    coins_solution(34, [13, 17]);
+    #is(coins_solution(34, [13, 17]), 2, "coins_solution test");
+    #is(coins_solution(27, [13, 17]), -1, "coins_solution test");
 
-    is(coins_solution(34, [13, 17]), 2, "coins_solution test");
-    is(coins_solution(27, [13, 17]), -1, "coins_solution test");
+    is(dynamic_coins_choose(34, [13, 17]), 2, "coins_solution test");
+    is(dynamic_coins_choose(27, [13, 17]), -1, "coins_solution test");
 
     done_testing();
 }
